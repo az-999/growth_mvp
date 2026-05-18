@@ -8,6 +8,7 @@ use App\Entity\Shop;
 use App\Entity\TelegramSendLog;
 use App\Repository\TelegramIntegrationRepository;
 use App\Repository\TelegramSendLogRepository;
+use App\Logger\TelegramLogger;
 use App\Telegram\TelegramClient;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -19,6 +20,7 @@ class OrderService
         private readonly TelegramSendLogRepository $sendLogRepository,
         private readonly TelegramClient $telegramClient,
         private readonly TokenEncryptor $tokenEncryptor,
+        private readonly TelegramLogger $telegramLogger,
     ) {
     }
 
@@ -46,24 +48,65 @@ class OrderService
         $shop = $order->getShop();
         $integration = $this->integrationRepository->findByShop($shop);
 
-        if ($integration === null || !$integration->isEnabled()) {
+        if ($integration === null) {
+            $this->telegramLogger->info('notify_skipped', [
+                'shopId' => $shop->getId(),
+                'orderId' => $order->getId(),
+                'reason' => 'no_telegram_integration',
+            ]);
+
+            return 'skipped';
+        }
+
+        if (!$integration->isEnabled()) {
+            $this->telegramLogger->info('notify_skipped', [
+                'shopId' => $shop->getId(),
+                'orderId' => $order->getId(),
+                'reason' => 'integration_disabled',
+            ]);
+
             return 'skipped';
         }
 
         $existing = $this->sendLogRepository->findByShopAndOrder($shop, $order);
         if ($existing !== null) {
-            return strtolower($existing->getStatus()) === 'sent' ? 'sent' : 'failed';
+            $status = strtolower($existing->getStatus()) === 'sent' ? 'sent' : 'failed';
+            $this->telegramLogger->info('notify_idempotent', [
+                'shopId' => $shop->getId(),
+                'orderId' => $order->getId(),
+                'existingStatus' => $existing->getStatus(),
+            ]);
+
+            return $status;
         }
 
         $message = $this->buildMessage($order);
+
+        $this->telegramLogger->info('notify_attempt', [
+            'shopId' => $shop->getId(),
+            'orderId' => $order->getId(),
+            'orderNumber' => $order->getNumber(),
+            'chatId' => TelegramLogger::maskChatId($integration->getChatId()),
+            'messagePreview' => mb_substr($message, 0, 120),
+        ]);
 
         try {
             $token = $this->tokenEncryptor->decrypt($integration->getBotTokenEncrypted());
             $this->telegramClient->sendMessage($token, $integration->getChatId(), $message);
             $this->persistLog($shop, $order, $message, TelegramSendLog::STATUS_SENT, null);
 
+            $this->telegramLogger->info('notify_success', [
+                'shopId' => $shop->getId(),
+                'orderId' => $order->getId(),
+            ]);
+
             return 'sent';
         } catch (\Throwable $e) {
+            $this->telegramLogger->error('notify_failed', [
+                'shopId' => $shop->getId(),
+                'orderId' => $order->getId(),
+                'error' => $e->getMessage(),
+            ]);
             $this->persistLog($shop, $order, $message, TelegramSendLog::STATUS_FAILED, $e->getMessage());
 
             return 'failed';
