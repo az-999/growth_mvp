@@ -5,11 +5,12 @@ import './OrderModal.css';
 
 interface Props {
   bouquet: Bouquet;
+  shopId: number;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function OrderModal({ bouquet, onClose, onSuccess }: Props) {
+export default function OrderModal({ bouquet, shopId, onClose, onSuccess }: Props) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -24,7 +25,7 @@ export default function OrderModal({ bouquet, onClose, onSuccess }: Props) {
       const number = `A-${Date.now().toString(36).toUpperCase()}`;
       const total = bouquet.price * quantity;
       const customerName = `${name}, тел. ${phone}, ×${quantity}`;
-      await createOrder(bouquet.shopId, { number, total, customerName });
+      await createOrder(shopId, { number, total, customerName });
       onSuccess();
       onClose();
     } catch (err) {

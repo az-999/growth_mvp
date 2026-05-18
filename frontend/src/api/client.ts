@@ -41,6 +41,17 @@ export interface OrderPayload {
   customerName: string;
 }
 
+export interface ShopInfo {
+  id: number;
+  name: string;
+}
+
+export async function fetchShops(): Promise<ShopInfo[]> {
+  const res = await fetch(`${API_BASE}/shops`);
+  if (!res.ok) throw new Error('Не удалось загрузить магазины');
+  return res.json();
+}
+
 export async function createOrder(shopId: number, payload: OrderPayload) {
   const res = await fetch(`${API_BASE}/shops/${shopId}/orders`, {
     method: 'POST',
@@ -49,7 +60,8 @@ export async function createOrder(shopId: number, payload: OrderPayload) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || 'Ошибка создания заказа');
+    const detail = err.detail ?? err.message ?? err['hydra:description'];
+    throw new Error(detail || `Ошибка создания заказа (${res.status})`);
   }
   return res.json();
 }

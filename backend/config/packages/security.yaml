@@ -20,5 +20,6 @@ security:
 
     access_control:
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/shops$, methods: [GET], roles: PUBLIC_ACCESS }
         - { path: ^/api/shops/\d+/orders$, methods: [POST], roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

@@ -1,18 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { bouquets } from '../data/bouquets';
 import OrderModal from '../components/OrderModal';
+import { fetchShops, type ShopInfo } from '../api/client';
 import './LandingPage.css';
 
 export default function LandingPage() {
+  const [shops, setShops] = useState<ShopInfo[]>([]);
+  const [loadError, setLoadError] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const selected = bouquets.find((b) => b.id === selectedId);
 
-  const shops = [
-    { id: 1, name: 'Акация' },
-    { id: 2, name: 'Шик блеск красота' },
-  ];
+  const selected = bouquets.find((b) => b.id === selectedId);
+  const selectedShopId = selected ? shops.find((s) => s.name === selected.shopName)?.id : undefined;
+
+  useEffect(() => {
+    fetchShops()
+      .then(setShops)
+      .catch((e) => setLoadError(e.message));
+  }, []);
 
   return (
     <div className="landing">
@@ -22,6 +28,12 @@ export default function LandingPage() {
           Войти
         </Link>
       </header>
+
+      {loadError && (
+        <div className="container">
+          <div className="alert alert-error">{loadError}</div>
+        </div>
+      )}
 
       {success && (
         <div className="container">
@@ -35,7 +47,7 @@ export default function LandingPage() {
             <h2>{shop.name}</h2>
             <div className="bouquet-grid">
               {bouquets
-                .filter((b) => b.shopId === shop.id)
+                .filter((b) => b.shopName === shop.name)
                 .map((b) => (
                   <article key={b.id} className="bouquet-card" style={{ background: b.color }}>
                     <div className="bouquet-visual" />
@@ -51,8 +63,13 @@ export default function LandingPage() {
         ))}
       </main>
 
-      {selected && (
-        <OrderModal bouquet={selected} onClose={() => setSelectedId(null)} onSuccess={() => setSuccess(true)} />
+      {selected && selectedShopId && (
+        <OrderModal
+          bouquet={selected}
+          shopId={selectedShopId}
+          onClose={() => setSelectedId(null)}
+          onSuccess={() => setSuccess(true)}
+        />
       )}
     </div>
   );
