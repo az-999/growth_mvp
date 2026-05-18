@@ -5,8 +5,8 @@ import './TelegramSettingsPage.css';
 
 export default function TelegramSettingsPage() {
   const { shopId: shopIdParam } = useParams();
-  const auth = getAuth();
-  const shopId = Number(shopIdParam) || auth?.shopId || 1;
+  const authShopId = getAuth()?.shopId;
+  const shopId = Number(shopIdParam) || authShopId || 1;
 
   const [botToken, setBotToken] = useState('');
   const [chatId, setChatId] = useState('');
@@ -15,19 +15,20 @@ export default function TelegramSettingsPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const loadStatus = () => {
+  const loadStatus = () =>
     fetchTelegramStatus(shopId)
       .then(setStatus)
       .catch((e) => setError(e.message));
-  };
 
   useEffect(() => {
+    const auth = getAuth();
     if (auth && auth.shopId !== shopId) {
       setError('Нет доступа к этому магазину');
       return;
     }
-    loadStatus();
-  }, [shopId, auth]);
+    void loadStatus();
+    // shopId only — getAuth() returns a new object each call; [auth] caused infinite refetch
+  }, [shopId]);
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
