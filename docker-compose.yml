@@ -54,7 +54,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:5000}
+      # Пусто на сервере → фронт ходит на /api того же домена (нужен proxy в nginx)
+      VITE_API_URL: ${VITE_API_URL:-}
       VITE_DISABLE_HMR: ${VITE_DISABLE_HMR:-true}
     depends_on:
       - backend_nginx

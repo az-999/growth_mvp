@@ -1,4 +1,16 @@
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`;
+/** API base: env > same-origin /api (prod behind nginx) > localhost (local dev). */
+function resolveApiBase(): string {
+  const fromEnv = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+  if (fromEnv) {
+    return `${fromEnv.replace(/\/$/, '')}/api`;
+  }
+  if (typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+    return `${window.location.origin}/api`;
+  }
+  return 'http://localhost:5000/api';
+}
+
+const API_BASE = resolveApiBase();
 
 function headers(): HeadersInit {
   const h: HeadersInit = { 'Content-Type': 'application/json' };
