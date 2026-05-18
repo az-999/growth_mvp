@@ -21,7 +21,8 @@ services:
       - ./backend:/var/www/html
       - backend_vendor:/var/www/html/vendor
     environment:
-      APP_ENV: dev
+      APP_ENV: ${APP_ENV:-prod}
+      APP_DEBUG: ${APP_DEBUG:-0}
       DATABASE_URL: mysql://root:password@mysql:3306/growth_mvp?serverVersion=8.0&charset=utf8mb4
       MEMCACHED_DSN: memcached://memcached:11211
       TELEGRAM_MOCK: "true"

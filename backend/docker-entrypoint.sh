@@ -26,5 +26,6 @@ if [ -f config/jwt/private.pem ]; then
 fi
 
 php bin/console doctrine:migrations:migrate --no-interaction
+php bin/console cache:warmup --no-interaction 2>/dev/null || true
 
 exec "$@"
