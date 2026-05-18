@@ -25,9 +25,6 @@ if [ -f config/jwt/private.pem ]; then
   chmod 644 config/jwt/public.pem 2>/dev/null || true
 fi
 
-php bin/console doctrine:migrations:migrate --no-interaction 2>/dev/null || true
-if [ "$LOAD_FIXTURES" = "1" ]; then
-  php bin/console doctrine:fixtures:load --no-interaction 2>/dev/null || true
-fi
+php bin/console doctrine:migrations:migrate --no-interaction
 
 exec "$@"

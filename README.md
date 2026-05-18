@@ -19,7 +19,13 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-При первом старте выполняются миграции и сиды (`LOAD_FIXTURES=1`).
+При старте выполняются только миграции. Данные в БД сохраняются при пересборке контейнеров.
+
+Первичные данные (один раз):
+
+```bash
+docker compose exec backend_php php bin/console app:seed
+```
 
 Проверка API:
 
@@ -41,7 +47,7 @@ mkdir -p config/jwt
 openssl genrsa -out config/jwt/private.pem -aes256 -passout pass:growth_mvp_jwt_pass 4096
 openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem -passin pass:growth_mvp_jwt_pass
 php bin/console doctrine:migrations:migrate
-php bin/console doctrine:fixtures:load -n
+php bin/console app:seed
 symfony server:start --port=5000
 ```
 
@@ -59,16 +65,24 @@ VITE_API_URL=http://localhost:5000 npm run dev
 
 ## 4. Тестовые данные (сиды)
 
-`docker compose exec backend_php php bin/console doctrine:fixtures:load -n`
+```bash
+docker compose exec backend_php php bin/console app:seed
+```
+
+Команда **не трогает** БД, если магазины уже есть. Полная перезагрузка данных:
+
+```bash
+docker compose exec backend_php php bin/console app:seed --force
+```
 
 | Email | Пароль | Магазин |
 |-------|--------|---------|
-| dram1008@yandex.ru | password | Акация (id=1) |
-| owner@shik-blask.ru | password | Шик блеск красота (id=2) |
+| dram1008@yandex.ru | password | Акация |
+| owner@shik-blask.ru | password | Шик блеск красота |
 
 Создаются также 5 заказов на каждый магазин.
 
-Пересоздать БД: `docker compose down -v && docker compose up --build -d`
+Удалить том MySQL (полный сброс БД): `docker compose down -v && docker compose up --build -d`, затем `app:seed`.
 
 ## 5. Прогон тестов
 

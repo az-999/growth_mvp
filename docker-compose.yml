@@ -29,7 +29,6 @@ services:
       JWT_SECRET_KEY: /var/www/html/config/jwt/private.pem
       JWT_PUBLIC_KEY: /var/www/html/config/jwt/public.pem
       JWT_PASSPHRASE: ${JWT_PASSPHRASE:-growth_mvp_jwt_pass}
-      LOAD_FIXTURES: ${LOAD_FIXTURES:-1}
     depends_on:
       mysql:
         condition: service_healthy
