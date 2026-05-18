@@ -24,8 +24,14 @@ export default function OrderModal({ bouquet, shopId, onClose, onSuccess }: Prop
     try {
       const number = `A-${Date.now().toString(36).toUpperCase()}`;
       const total = bouquet.price * quantity;
-      const customerName = `${name}, тел. ${phone}, ×${quantity}`;
-      await createOrder(shopId, { number, total, customerName });
+      const customerName = `${name}, тел. ${phone}`;
+      await createOrder(shopId, {
+        number,
+        total,
+        customerName,
+        count: quantity,
+        product_id: bouquet.id,
+      });
       onSuccess();
       onClose();
     } catch (err) {

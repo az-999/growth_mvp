@@ -69,6 +69,8 @@ class OrderController extends AbstractController
             'number' => $order->getNumber(),
             'total' => (float) $order->getTotal(),
             'customerName' => $order->getCustomerName(),
+            'count' => $order->getCount(),
+            'productId' => $order->getProductId(),
             'createdAt' => $order->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ];
     }

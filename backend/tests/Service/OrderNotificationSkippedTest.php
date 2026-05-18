@@ -17,6 +17,8 @@ class OrderNotificationSkippedTest extends OrderNotificationTestCase
         $dto->number = 'A-4001';
         $dto->total = 1200;
         $dto->customerName = 'Гость';
+        $dto->count = 1;
+        $dto->productId = 'a1';
 
         $result = $service->createAndNotify($this->shop, $dto);
 

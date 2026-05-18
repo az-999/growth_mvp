@@ -28,6 +28,12 @@ class Order
     #[ORM\Column(name: 'customer_name', length: 255)]
     private string $customerName;
 
+    #[ORM\Column]
+    private int $count = 1;
+
+    #[ORM\Column(name: 'product_id', length: 64)]
+    private string $productId = '';
+
     #[ORM\Column(name: 'created_at')]
     private \DateTimeImmutable $createdAt;
 
@@ -85,6 +91,30 @@ class Order
     public function setCustomerName(string $customerName): static
     {
         $this->customerName = $customerName;
+
+        return $this;
+    }
+
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    public function setCount(int $count): static
+    {
+        $this->count = $count;
+
+        return $this;
+    }
+
+    public function getProductId(): string
+    {
+        return $this->productId;
+    }
+
+    public function setProductId(string $productId): static
+    {
+        $this->productId = $productId;
 
         return $this;
     }

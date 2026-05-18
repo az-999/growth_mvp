@@ -18,6 +18,8 @@ class OrderNotificationSentTest extends OrderNotificationTestCase
         $dto->number = 'A-1005';
         $dto->total = 2490;
         $dto->customerName = 'Анна';
+        $dto->count = 1;
+        $dto->productId = 'a1';
 
         $result = $service->createAndNotify($this->shop, $dto);
 

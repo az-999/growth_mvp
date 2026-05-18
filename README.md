@@ -32,7 +32,7 @@ docker compose exec backend_php php bin/console app:seed
 ```bash
 curl -X POST http://localhost:5000/api/shops/1/orders \
   -H "Content-Type: application/json" \
-  -d '{"number":"A-1005","total":2490,"customerName":"Анна"}'
+  -d '{"number":"A-1005","total":2490,"customerName":"Анна","count":1,"product_id":"a1"}'
 ```
 
 ## 2. Запуск backend (без Docker)
@@ -117,7 +117,7 @@ API: `POST https://api.telegram.org/bot{token}/sendMessage`
 - Префикс API `/api` (в ТЗ пути без префикса)
 - Лендинг, JWT-авторизация, два магазина — сверх минимального ТЗ
 - `bot_token` хранится зашифрованным (AES-256-CBC), ключ `TELEGRAM_TOKEN_ENCRYPTION_KEY` в `.env`
-- Телефон и количество с лендинга включаются в `customerName` (API строго по ТЗ: `number`, `total`, `customerName`)
+- API заказа: `number`, `total`, `customerName`, `count`, `product_id`; телефон — в `customerName`
 - Memcached — кэш Symfony
 - JWT в `localStorage`
 

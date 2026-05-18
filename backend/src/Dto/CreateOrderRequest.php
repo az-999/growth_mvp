@@ -2,6 +2,7 @@
 
 namespace App\Dto;
 
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateOrderRequest
@@ -15,4 +16,11 @@ class CreateOrderRequest
 
     #[Assert\NotBlank]
     public string $customerName = '';
+
+    #[Assert\Positive]
+    public int $count = 1;
+
+    #[Assert\NotBlank]
+    #[SerializedName('product_id')]
+    public string $productId = '';
 }

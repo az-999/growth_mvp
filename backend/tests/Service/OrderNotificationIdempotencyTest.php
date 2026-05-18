@@ -18,6 +18,8 @@ class OrderNotificationIdempotencyTest extends OrderNotificationTestCase
         $dto->number = 'A-2001';
         $dto->total = 1500;
         $dto->customerName = 'Иван';
+        $dto->count = 1;
+        $dto->productId = 'a1';
 
         $result = $service->createAndNotify($this->shop, $dto);
         $order = $result['order'];

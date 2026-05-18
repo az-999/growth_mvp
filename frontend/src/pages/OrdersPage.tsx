@@ -6,6 +6,8 @@ interface Order {
   number: string;
   total: number;
   customerName: string;
+  count: number;
+  productId: string;
   createdAt: string;
 }
 
@@ -31,6 +33,8 @@ export default function OrdersPage() {
           <tr>
             <th>№</th>
             <th>Номер</th>
+            <th>Товар</th>
+            <th>Кол-во</th>
             <th>Сумма</th>
             <th>Клиент</th>
             <th>Дата</th>
@@ -41,6 +45,8 @@ export default function OrdersPage() {
             <tr key={o.id}>
               <td>{o.id}</td>
               <td>{o.number}</td>
+              <td>{o.productId}</td>
+              <td>{o.count}</td>
               <td>{o.total.toLocaleString('ru-RU')} ₽</td>
               <td>{o.customerName}</td>
               <td>{new Date(o.createdAt).toLocaleString('ru-RU')}</td>

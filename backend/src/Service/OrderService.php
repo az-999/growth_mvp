@@ -34,6 +34,8 @@ class OrderService
         $order->setNumber($dto->number);
         $order->setTotal((string) $dto->total);
         $order->setCustomerName($dto->customerName);
+        $order->setCount($dto->count);
+        $order->setProductId($dto->productId);
 
         $this->em->persist($order);
         $this->em->flush();
@@ -116,8 +118,10 @@ class OrderService
     private function buildMessage(Order $order): string
     {
         return sprintf(
-            'Новый заказ %s на сумму %s ₽, клиент %s',
+            'Новый заказ %s, товар %s ×%d на сумму %s ₽, клиент %s',
             $order->getNumber(),
+            $order->getProductId(),
+            $order->getCount(),
             $order->getTotal(),
             $order->getCustomerName()
         );

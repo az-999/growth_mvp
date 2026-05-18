@@ -20,6 +20,8 @@ class OrderNotificationFailedTest extends OrderNotificationTestCase
         $dto->number = 'A-3001';
         $dto->total = 990;
         $dto->customerName = 'Тест';
+        $dto->count = 1;
+        $dto->productId = 'a1';
 
         $result = $service->createAndNotify($this->shop, $dto);
 

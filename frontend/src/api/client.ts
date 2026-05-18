@@ -39,6 +39,8 @@ export interface OrderPayload {
   number: string;
   total: number;
   customerName: string;
+  count: number;
+  product_id: string;
 }
 
 export interface ShopInfo {
