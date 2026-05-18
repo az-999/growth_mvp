@@ -6,5 +6,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    // Vite 5.4+ blocks unknown Host headers (reverse proxy / public domain)
+    allowedHosts: ['localhost', '.vedicai.ru'],
   },
 });
