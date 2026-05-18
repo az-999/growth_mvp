@@ -24,12 +24,17 @@ class TelegramIntegrationService
         $integration = $this->integrationRepository->findByShop($shop);
 
         if ($integration === null) {
+            if ($dto->botToken === '') {
+                throw new \InvalidArgumentException('botToken is required for first connect');
+            }
             $integration = new TelegramIntegration();
             $integration->setShop($shop);
             $this->em->persist($integration);
         }
 
-        $integration->setBotTokenEncrypted($this->tokenEncryptor->encrypt($dto->botToken));
+        if ($dto->botToken !== '') {
+            $integration->setBotTokenEncrypted($this->tokenEncryptor->encrypt($dto->botToken));
+        }
         $integration->setChatId($dto->chatId);
         $integration->setEnabled($dto->enabled);
         $integration->touch();

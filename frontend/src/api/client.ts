@@ -54,7 +54,11 @@ export async function connectTelegram(shopId: number, body: { botToken: string; 
     headers: headers(),
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error('Ошибка сохранения настроек');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const detail = err.detail ?? err.message ?? err['hydra:description'];
+    throw new Error(detail || `Ошибка сохранения (${res.status})`);
+  }
   return res.json();
 }
 

@@ -27,7 +27,11 @@ class TelegramController extends AbstractController
         $shop = $this->getShopOr404($shopId);
         $this->denyAccessUnlessGranted('SHOP_ACCESS', $shop);
 
-        $integration = $this->integrationService->connect($shop, $dto);
+        try {
+            $integration = $this->integrationService->connect($shop, $dto);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['message' => $e->getMessage()], 400);
+        }
 
         return $this->json([
             'shopId' => $shop->getId(),

@@ -1,12 +1,21 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { connectTelegram, fetchTelegramStatus, getAuth } from '../api/client';
 import './TelegramSettingsPage.css';
 
 export default function TelegramSettingsPage() {
   const { shopId: shopIdParam } = useParams();
-  const authShopId = getAuth()?.shopId;
-  const shopId = Number(shopIdParam) || authShopId || 1;
+  const auth = getAuth();
+  const shopId = auth?.shopId;
+
+  if (!shopId) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const routeShopId = Number(shopIdParam);
+  if (shopIdParam && routeShopId !== shopId) {
+    return <Navigate to={`/shops/${shopId}/growth/telegram`} replace />;
+  }
 
   const [botToken, setBotToken] = useState('');
   const [chatId, setChatId] = useState('');
@@ -21,13 +30,7 @@ export default function TelegramSettingsPage() {
       .catch((e) => setError(e.message));
 
   useEffect(() => {
-    const auth = getAuth();
-    if (auth && auth.shopId !== shopId) {
-      setError('Нет доступа к этому магазину');
-      return;
-    }
     void loadStatus();
-    // shopId only — getAuth() returns a new object each call; [auth] caused infinite refetch
   }, [shopId]);
 
   const handleSave = async (e: FormEvent) => {
@@ -36,8 +39,7 @@ export default function TelegramSettingsPage() {
     setMessage('');
     try {
       await connectTelegram(shopId, { botToken, chatId, enabled });
-      setMessage('Настройки сохранены');
-      setBotToken('');
+      setMessage('Настройки сохранены. Токен в интерфейсе не показывается — он хранится в БД в зашифрованном виде.');
       loadStatus();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка');
@@ -61,7 +63,7 @@ export default function TelegramSettingsPage() {
             value={botToken}
             onChange={(e) => setBotToken(e.target.value)}
             placeholder="123456:ABC-DEF..."
-            required
+            required={!status?.chatId}
           />
         </label>
         <label>
