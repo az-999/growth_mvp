@@ -128,14 +128,6 @@ API: `POST https://api.telegram.org/bot{token}/sendMessage`
 3. Настроить Telegram в `/shops/1/growth/telegram`
 4. Создать ещё один заказ с лендинга — проверить уведомление и статус
 
-## Темы для собеседования (§13)
-
-- Границы MVP: статичные букеты, синхронная отправка
-- Идемпотентность: `UNIQUE(shop_id, order_id)` в `telegram_send_log`
-- Async: очередь (Redis/RabbitMQ), воркер, retry с backoff
-- Безопасность токенов: шифрование в БД, маскирование chatId, секреты в env
-- Мониторинг: метрики sent/failed, алерты на рост FAILED
-
 ## Структура
 
 ```
