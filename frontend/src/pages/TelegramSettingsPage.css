@@ -1,0 +1,41 @@
+.telegram-settings .hint {
+  background: #fff8e6;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.settings-form label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.settings-form input[type='text'],
+.settings-form input[type='password'] {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.toggle {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-block {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+.status-block ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}

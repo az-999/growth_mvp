@@ -1,0 +1,7 @@
+services:
+    App\Tests\Double\SpyTelegramClient:
+        public: true
+
+    App\Telegram\TelegramClient:
+        alias: App\Tests\Double\SpyTelegramClient
+        public: true

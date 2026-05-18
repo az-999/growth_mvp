@@ -1,0 +1,23 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Telegram\TelegramClient:
+        factory: ['@App\Telegram\TelegramClientFactory', 'create']
+
+    App\Telegram\TelegramClientFactory:
+        arguments:
+            $telegramMock: '%env(bool:TELEGRAM_MOCK)%'
+
+    App\Service\TokenEncryptor:
+        arguments:
+            $encryptionKeyBase64: '%env(TELEGRAM_TOKEN_ENCRYPTION_KEY)%'

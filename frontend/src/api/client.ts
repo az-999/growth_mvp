@@ -1,0 +1,90 @@
+const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`;
+
+function headers(): HeadersInit {
+  const h: HeadersInit = { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem('token');
+  if (token) {
+    h['Authorization'] = `Bearer ${token}`;
+  }
+  return h;
+}
+
+export async function login(email: string, password: string): Promise<string> {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    throw new Error('Неверный email или пароль');
+  }
+  const data = await res.json();
+  saveAuth(data.token, { email: data.email, shopId: data.shopId });
+  return data.token as string;
+}
+
+export interface OrderPayload {
+  number: string;
+  total: number;
+  customerName: string;
+}
+
+export async function createOrder(shopId: number, payload: OrderPayload) {
+  const res = await fetch(`${API_BASE}/shops/${shopId}/orders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Ошибка создания заказа');
+  }
+  return res.json();
+}
+
+export async function fetchOrders(shopId: number) {
+  const res = await fetch(`${API_BASE}/shops/${shopId}/orders`, { headers: headers() });
+  if (!res.ok) throw new Error('Не удалось загрузить заказы');
+  return res.json();
+}
+
+export async function connectTelegram(shopId: number, body: { botToken: string; chatId: string; enabled: boolean }) {
+  const res = await fetch(`${API_BASE}/shops/${shopId}/telegram/connect`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error('Ошибка сохранения настроек');
+  return res.json();
+}
+
+export async function fetchTelegramStatus(shopId: number) {
+  const res = await fetch(`${API_BASE}/shops/${shopId}/telegram/status`, { headers: headers() });
+  if (!res.ok) throw new Error('Не удалось загрузить статус');
+  return res.json();
+}
+
+export interface AuthUser {
+  shopId: number;
+  email: string;
+}
+
+export function saveAuth(token: string, user: AuthUser) {
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify(user));
+}
+
+export function getAuth(): AuthUser | null {
+  const raw = localStorage.getItem('user');
+  return raw ? JSON.parse(raw) : null;
+}
+
+export function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+}
+
+export function decodeShopIdFromToken(): number | null {
+  const user = getAuth();
+  return user?.shopId ?? null;
+}

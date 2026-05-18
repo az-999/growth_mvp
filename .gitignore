@@ -50,3 +50,30 @@
 
 # Embedded web-server pid file
 /.web-server-pid
+
+# Project
+.idea/
+backend/.env
+backend/.env.dev
+backend/var/
+frontend/node_modules/
+frontend/dist/
+.env
+
+# Project
+.idea/
+backend/.env
+backend/.env.dev
+backend/var/
+frontend/node_modules/
+frontend/dist/
+.env
+
+# Project
+.idea/
+backend/.env
+backend/.env.dev
+backend/var/
+frontend/node_modules/
+frontend/dist/
+.env

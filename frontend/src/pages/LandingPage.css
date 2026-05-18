@@ -1,0 +1,49 @@
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0;
+}
+
+.landing-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.shop-section {
+  margin-bottom: 3rem;
+}
+
+.shop-section h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.bouquet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.bouquet-card {
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+}
+
+.bouquet-visual {
+  height: 120px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  margin-bottom: 1rem;
+}
+
+.bouquet-card h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+}
+
+.bouquet-price {
+  font-weight: 600;
+  margin: 0 0 1rem;
+}
