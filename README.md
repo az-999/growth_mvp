@@ -19,7 +19,15 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-При старте выполняются только миграции. Данные в БД сохраняются при пересборке контейнеров.
+При старте выполняются миграции и сброс кэша Symfony/Doctrine. Данные в БД сохраняются при пересборке контейнеров.
+
+После деплоя с новыми полями в Entity, если в API есть `count`/`productId`, а в MySQL пусто:
+
+```bash
+docker compose exec backend_php php bin/console doctrine:cache:clear-metadata
+docker compose exec backend_php php bin/console cache:clear
+docker compose restart backend_php
+```
 
 Первичные данные (один раз):
 

@@ -26,6 +26,9 @@ if [ -f config/jwt/private.pem ]; then
 fi
 
 php bin/console doctrine:migrations:migrate --no-interaction
-php bin/console cache:warmup --no-interaction 2>/dev/null || true
+# После миграций/изменений Entity — сброс кэша (иначе prod не пишет новые колонки в INSERT)
+php bin/console doctrine:cache:clear-metadata --no-interaction 2>/dev/null || true
+php bin/console cache:clear --no-interaction
+php bin/console cache:warmup --no-interaction
 
 exec "$@"
