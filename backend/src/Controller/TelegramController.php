@@ -37,6 +37,7 @@ class TelegramController extends AbstractController
             'shopId' => $shop->getId(),
             'chatId' => $integration->getChatId(),
             'enabled' => $integration->isEnabled(),
+            'hasBotToken' => true,
             'createdAt' => $integration->getCreatedAt()->format(\DateTimeInterface::ATOM),
             'updatedAt' => $integration->getUpdatedAt()->format(\DateTimeInterface::ATOM),
         ]);

@@ -74,7 +74,16 @@ export async function connectTelegram(shopId: number, body: { botToken: string; 
   return res.json();
 }
 
-export async function fetchTelegramStatus(shopId: number) {
+export interface TelegramStatus {
+  enabled: boolean;
+  chatId: string | null;
+  hasBotToken: boolean;
+  lastSentAt: string | null;
+  sentCount: number;
+  failedCount: number;
+}
+
+export async function fetchTelegramStatus(shopId: number): Promise<TelegramStatus> {
   const res = await fetch(`${API_BASE}/shops/${shopId}/telegram/status`, { headers: headers() });
   if (!res.ok) throw new Error('Не удалось загрузить статус');
   return res.json();

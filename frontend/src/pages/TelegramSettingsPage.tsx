@@ -1,7 +1,17 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { connectTelegram, fetchTelegramStatus, getAuth } from '../api/client';
+import {
+  connectTelegram,
+  fetchTelegramStatus,
+  getAuth,
+  type TelegramStatus,
+} from '../api/client';
 import './TelegramSettingsPage.css';
+
+function maskChatId(chatId: string): string {
+  if (chatId.length <= 4) return '****';
+  return '*'.repeat(chatId.length - 4) + chatId.slice(-4);
+}
 
 export default function TelegramSettingsPage() {
   const { shopId: shopIdParam } = useParams();
@@ -20,27 +30,42 @@ export default function TelegramSettingsPage() {
   const [botToken, setBotToken] = useState('');
   const [chatId, setChatId] = useState('');
   const [enabled, setEnabled] = useState(true);
-  const [status, setStatus] = useState<Record<string, unknown> | null>(null);
+  const [hasBotToken, setHasBotToken] = useState(false);
+  const [status, setStatus] = useState<TelegramStatus | null>(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const loadStatus = () =>
-    fetchTelegramStatus(shopId)
-      .then(setStatus)
+  const applyStatus = useCallback((data: TelegramStatus) => {
+    setStatus(data);
+    setEnabled(data.enabled);
+    setHasBotToken(data.hasBotToken);
+    if (data.chatId) {
+      setChatId(data.chatId);
+    }
+  }, []);
+
+  const loadStatus = useCallback(() => {
+    return fetchTelegramStatus(shopId)
+      .then(applyStatus)
       .catch((e) => setError(e.message));
+  }, [shopId, applyStatus]);
 
   useEffect(() => {
     void loadStatus();
-  }, [shopId]);
+  }, [loadStatus]);
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setMessage('');
     try {
-      await connectTelegram(shopId, { botToken, chatId, enabled });
-      setMessage('Настройки сохранены. Токен в интерфейсе не показывается — он хранится в БД в зашифрованном виде.');
-      loadStatus();
+      const saved = await connectTelegram(shopId, { botToken, chatId, enabled });
+      setChatId(saved.chatId as string);
+      setEnabled(saved.enabled as boolean);
+      setHasBotToken(true);
+      setBotToken('');
+      setMessage('Настройки сохранены');
+      await loadStatus();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка');
     }
@@ -62,13 +87,21 @@ export default function TelegramSettingsPage() {
             type="password"
             value={botToken}
             onChange={(e) => setBotToken(e.target.value)}
-            placeholder="123456:ABC-DEF..."
-            required={!status?.chatId}
+            placeholder={
+              hasBotToken ? 'Токен сохранён — введите новый, только если нужно заменить' : '123456:ABC-DEF...'
+            }
+            required={!hasBotToken}
+            autoComplete="off"
           />
         </label>
         <label>
           Chat ID
-          <input value={chatId} onChange={(e) => setChatId(e.target.value)} placeholder="987654321" required />
+          <input
+            value={chatId}
+            onChange={(e) => setChatId(e.target.value)}
+            placeholder="987654321"
+            required
+          />
         </label>
         <label className="toggle">
           <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
@@ -86,10 +119,11 @@ export default function TelegramSettingsPage() {
           <h2>Статус интеграции</h2>
           <ul>
             <li>Включено: {status.enabled ? 'да' : 'нет'}</li>
-            <li>Chat ID: {(status.chatId as string) || '—'}</li>
-            <li>Последняя отправка: {(status.lastSentAt as string) || '—'}</li>
-            <li>Отправлено за 7 дней: {status.sentCount as number}</li>
-            <li>Ошибок за 7 дней: {status.failedCount as number}</li>
+            <li>Chat ID: {status.chatId ? maskChatId(status.chatId) : '—'}</li>
+            <li>Bot Token: {status.hasBotToken ? 'сохранён' : 'не задан'}</li>
+            <li>Последняя отправка: {status.lastSentAt || '—'}</li>
+            <li>Отправлено за 7 дней: {status.sentCount}</li>
+            <li>Ошибок за 7 дней: {status.failedCount}</li>
           </ul>
         </section>
       )}

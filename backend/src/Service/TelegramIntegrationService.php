@@ -56,6 +56,7 @@ class TelegramIntegrationService
             return [
                 'enabled' => false,
                 'chatId' => null,
+                'hasBotToken' => false,
                 'lastSentAt' => null,
                 'sentCount' => 0,
                 'failedCount' => 0,
@@ -64,7 +65,8 @@ class TelegramIntegrationService
 
         return [
             'enabled' => $integration->isEnabled(),
-            'chatId' => $this->maskChatId($integration->getChatId()),
+            'chatId' => $integration->getChatId(),
+            'hasBotToken' => $integration->getBotTokenEncrypted() !== '',
             'lastSentAt' => $this->sendLogRepository->findLastSentAt($shop)?->format(\DateTimeInterface::ATOM),
             'sentCount' => $this->sendLogRepository->countByShopAndStatusSince(
                 $shop,
@@ -79,13 +81,4 @@ class TelegramIntegrationService
         ];
     }
 
-    private function maskChatId(string $chatId): string
-    {
-        $len = strlen($chatId);
-        if ($len <= 4) {
-            return '****';
-        }
-
-        return str_repeat('*', $len - 4).substr($chatId, -4);
-    }
 }
